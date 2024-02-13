@@ -102,57 +102,6 @@
                 // clear target div
                 var targetDiv = document.getElementById("targetDiv");
                 targetDiv.innerHTML = "";
-                // Add info on comparison result is valid
-                // From this kind of json, get info and show it in the div
-                /*
-                {
-                    "version": "1.0",
-                    "chainId": "148",
-                    "createdAt": 1707819077399,
-                    "meta": {
-                        "name": "Transactions Batch",
-                        "description": "",
-                        "txBuilderVersion": "1.16.3",
-                        "createdFromSafeAddress": "0x5d9E0CD2561Db990f578003dEe02AE6270e6fdD2",
-                        "createdFromOwnerAddress": "",
-                        "checksum": "0x56ae2071dd5b0e4d6bffff561d12841833b3ad1d23aa0deee77aa7178380a348"
-                    },
-                    "transactions": [
-                        {
-                            "to": "0xf32c0fb28dbc1171e4E01168A02275242df34483",
-                            "value": "0",
-                            "data": null,
-                            "contractMethod": {
-                                "inputs": [
-                                    {
-                                        "internalType": "address",
-                                            "name": "contractAddress",
-                                            "type": "address"
-                                        },
-                                        {
-                                            "internalType": "string",
-                                            "name": "functionSig",
-                                            "type": "string"
-                                        },
-                                        {
-                                            "internalType": "address",
-                                            "name": "accountToRevoke",
-                                                "type": "address"
-                                            }
-                                        ],
-                                        "name": "revokeCallPermission",
-                                        "payable": false
-                                    },
-                                    "contractInputsValues": {
-                                        "contractAddress": "0x699eB64887eaC65D775d95288de5a0eE25c44259",
-                                        "functionSig": "setTokenConfig((address,uint256,address,bool,bool,uint256,uint256,uint256))",
-                                        "accountToRevoke": "0xc3290693DaF0Ae2157893a2Ffd8BaeAD279f8156"
-                                    }
-                                }
-                            ]
-                        }
-                */
-                // try catch block to handle invalid json
 
                 try {
                     var transaction = parsedJson.transactions[0];
