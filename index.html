@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON and Hex Data Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .compare-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .compare-btn:hover {
+            background-color: #45a049;
+        }
+
+        .valid-info {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .invalid-info {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>JSON and Hex Data Comparison</h2>
+        <label for="json">JSON:</label>
+        <textarea id="json" placeholder="Enter JSON data here"></textarea>
+        <label for="hexData">Hex Encoded Data:</label>
+        <textarea id="hexData" placeholder="Enter hex encoded data here"></textarea>
+        <button class="compare-btn" onclick="compareData()">Compare</button>
+        <h3>Comparison Result:</h3>
+        <textarea id="comparisonResult" readonly></textarea>
+        <div id="targetDiv"></div>
+    </div>
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js" type="text/javascript"></script>
+    <script>
+        // Encode JSON to ABI-encoded format
+        function encodeJSON(json) {
+            const transaction = json.transactions[0];
+            const functionInterface = "function " + transaction.contractMethod.name + "(" + transaction.contractMethod.inputs.map((input) => input.type).join(",") + ")";
+            const iface = new ethers.utils.Interface([functionInterface]);
+            const parameters = [];
+            for (const input of transaction.contractMethod.inputs) {
+                parameters.push(transaction.contractInputsValues[input.name]);
+            }
+            const data = iface.encodeFunctionData(transaction.contractMethod.name, parameters);
+            console.log("Encoded data:", data)
+            return data;
+        }
+
+        // Perform comparison
+        function compareData() {
+            var json = document.getElementById("json").value;
+            var hexData = document.getElementById("hexData").value;
+
+            try {
+                var parsedJson = JSON.parse(json);
+                var encodedData = encodeJSON(parsedJson);
+                var comparisonResult = document.getElementById("comparisonResult");
+
+                if (encodedData === hexData) {
+                    comparisonResult.value = "JSON and Hex Data are identical.";
+                    showInfo("valid", comparisonResult);
+                } else {
+                    comparisonResult.value = "JSON and Hex Data are different.";
+                    showInfo("invalid", comparisonResult);
+                }
+
+                // clear target div
+                var targetDiv = document.getElementById("targetDiv");
+                targetDiv.innerHTML = "";
+                // Add info on comparison result is valid
+                // From this kind of json, get info and show it in the div
+                /*
+                {
+                    "version": "1.0",
+                    "chainId": "148",
+                    "createdAt": 1707819077399,
+                    "meta": {
+                        "name": "Transactions Batch",
+                        "description": "",
+                        "txBuilderVersion": "1.16.3",
+                        "createdFromSafeAddress": "0x5d9E0CD2561Db990f578003dEe02AE6270e6fdD2",
+                        "createdFromOwnerAddress": "",
+                        "checksum": "0x56ae2071dd5b0e4d6bffff561d12841833b3ad1d23aa0deee77aa7178380a348"
+                    },
+                    "transactions": [
+                        {
+                            "to": "0xf32c0fb28dbc1171e4E01168A02275242df34483",
+                            "value": "0",
+                            "data": null,
+                            "contractMethod": {
+                                "inputs": [
+                                    {
+                                        "internalType": "address",
+                                            "name": "contractAddress",
+                                            "type": "address"
+                                        },
+                                        {
+                                            "internalType": "string",
+                                            "name": "functionSig",
+                                            "type": "string"
+                                        },
+                                        {
+                                            "internalType": "address",
+                                            "name": "accountToRevoke",
+                                                "type": "address"
+                                            }
+                                        ],
+                                        "name": "revokeCallPermission",
+                                        "payable": false
+                                    },
+                                    "contractInputsValues": {
+                                        "contractAddress": "0x699eB64887eaC65D775d95288de5a0eE25c44259",
+                                        "functionSig": "setTokenConfig((address,uint256,address,bool,bool,uint256,uint256,uint256))",
+                                        "accountToRevoke": "0xc3290693DaF0Ae2157893a2Ffd8BaeAD279f8156"
+                                    }
+                                }
+                            ]
+                        }
+                */
+                // try catch block to handle invalid json
+
+                try {
+                    var transaction = parsedJson.transactions[0];
+                    var transactionDiv = document.createElement("div");
+                    transactionDiv.innerHTML = "<h3>MetaData Info</h3>";
+                    transactionDiv.innerHTML += "<p>Chain ID: " + parsedJson.chainId + "</p>";
+                    transactionDiv.innerHTML += "<p>Created At: " + new Date(parsedJson.createdAt) + "</p>";
+                    transactionDiv.innerHTML += "<h4>Meta Info</h4>";
+                    for (const key in parsedJson.meta) {
+                        transactionDiv.innerHTML += "<p>" + key + ": " + parsedJson.meta[key] + "</p>";
+                    }
+                    transactionDiv.innerHTML = "<h3>Transaction Info</h3>";
+                    transactionDiv.innerHTML += "<p>To: " + transaction.to + "</p>";
+                    transactionDiv.innerHTML += "<h4>Contract Method</h4>";
+                    transactionDiv.innerHTML += "<p>Name: " + transaction.contractMethod.name + "</p>";
+                    transactionDiv.innerHTML += "<p>Payable: " + transaction.contractMethod.payable + "</p>";
+                    transactionDiv.innerHTML += "<h4>Contract Inputs Values</h4>";
+                    for (const input in transaction.contractInputsValues) {
+                        transactionDiv.innerHTML += "<p>" + input + ": " + transaction.contractInputsValues[input] + "</p>";
+                    }
+                    targetDiv.appendChild(transactionDiv);
+                }
+                catch (error) {
+                    document.getElementById("comparisonResult").value = "Error: " + error.message;
+                }
+
+
+            } catch (error) {
+                document.getElementById("comparisonResult").value = "Error: " + error.message;
+            }
+        }
+
+        function showInfo(type, element) {
+            // clear previous info
+            var infoElement = document.querySelector("." + type + "-info");
+            if (infoElement) {
+                infoElement.remove();
+            }
+            var infoElement = document.createElement("p");
+            infoElement.className = type + "-info";
+            infoElement.textContent = "Comparison is " + type + ".";
+            element.parentNode.insertBefore(infoElement, element.nextSibling);
+        }
+    </script>
+
+</body>
+
+</html>
